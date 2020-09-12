@@ -1,91 +1,103 @@
-// Recorded Seq has to wait till the whole thing is recorded before returning
+let gameStart = false;
+let generatedSequence;
+let recordedSequence;
+let level;
 
-let gameStart = 0;
-
+// Press any key to start
 $(document).keydown(function (e) {
-  let generatedSequence = [];
-  let level = 1;
-  let correctAns = true;
-
-  if (gameStart == 0) {
-    gameStart = 1;
-
-    while (correctAns) {
-      let recordedSeq = [];
-      $("h1").text(`Level ${level}`);
-      generatedSequence = generateSeq(generatedSequence);
-
-      //Flash the newly generated seq
-      $(generatedSequence[level - 1]).addClass("pressed"); // Level - 1 cuz no.of levels = no. of buttons to press
-      setTimeout(() => {
-        $(generatedSequence[level - 1]).removeClass("pressed");
-      }, 100);
-
-      // // Record the Seq
-      // recordedSeq = recordSeq(recordedSeq);
-      // console.log("recoreded Seq = " + recordedSeq);
-
-      // // If they match, proceed to level 2; else Try again
-      // if (checkSeq(generatedSequence, recordedSeq)) {
-      //   level++;
-      // } else {
-      //   $("h1").text("WRONG! Press any Key to Try Again");
-      //   correctAns = false;
-      //   gameStart = 0;
-      // }
-    }
+  if (!gameStart) {
+    console.log("game has started");
+    //start of game
+    gameStart = true;
+    generatedSequence = [];
+    recordedSequence = [];
+    level = 1;
+    $("h1").text(`Level ${level}`);
+    generateSeq();
   }
 });
 
-// Record user sequence
-function recordSeq(generatedSequence) {
-  let recordedSequence = [];
-  $(".btn").click(function () {
-    let buttonPressed = "." + this.id;
-    recordedSequence.push(buttonPressed);
-    console.log("recordedSeq = " + recordedSequence);
-  });
-  return recordedSequence;
-}
-
-// See if recorded seq = generated seq
-function checkSeq(generatedSequence, recordedSequence) {
-  let res = false;
-  for (let i = 0; i < recordedSequence.length; i++) {
-    if (recordedSequence[i] === generatedSequence[i]) {
-      res = true;
-    }
-  }
-}
-
 // Generate a random seq
-function generateSeq(generatedSequence) {
+function generateSeq() {
   let randomNumber = Math.floor(Math.random() * 4);
   let buttonNumberRelation;
 
   switch (randomNumber) {
     case 0:
       buttonNumberRelation = ".green";
+      audio = new Audio("sounds/green.mp3");
       break;
 
     case 1:
       buttonNumberRelation = ".red";
+      audio = new Audio("sounds/red.mp3");
       break;
 
     case 2:
       buttonNumberRelation = ".yellow";
+      audio = new Audio("sounds/yellow.mp3");
       break;
 
     case 3:
       buttonNumberRelation = ".blue";
+      audio = new Audio("sounds/blue.mp3");
       break;
 
     default:
       break;
   }
 
+  // Series Created
   generatedSequence.push(buttonNumberRelation);
+  animate(generatedSequence[level - 1], audio);
   console.log("generatedSequence = " + generatedSequence);
+}
 
-  return generatedSequence;
+//flash generated seq
+function animate(button, audio) {
+  if (button != null) {
+    $(button).addClass("pressed");
+    audio.play();
+    setTimeout(() => {
+      $(button).removeClass("pressed");
+    }, 100);
+  } else {
+    $("body").addClass("game-over");
+    audio.play();
+    setTimeout(() => {
+      $("body").removeClass("game-over");
+    }, 200);
+  }
+}
+
+//Record the seq
+$(".btn").click(function () {
+  if (gameStart) {
+    recordedSequence.push("." + this.id);
+    console.log("recordedSeq = " + recordedSequence);
+
+    if (checkSeq(recordedSequence.length)) {
+      if (recordedSequence.length == generatedSequence.length) {
+        $("h1").text("Correct!");
+        setTimeout(() => {
+          recordedSequence = [];
+          level++;
+          $("h1").text(`Level ${level}`);
+          generateSeq();
+        }, 1000);
+      }
+    } else {
+      animate(null, new Audio("sounds/wrong.mp3"));
+      gameStart = false;
+      $("h1").text("Game Over! Press any key to start Again");
+    }
+  }
+});
+
+//Check if correct button is pressed
+function checkSeq(length) {
+  if (recordedSequence[length - 1] === generatedSequence[length - 1]) {
+    return true;
+  }
+  return false;
 }
