@@ -2,6 +2,7 @@ let gameStart = false;
 let generatedSequence;
 let recordedSequence;
 let level;
+let highScore = 0;
 
 // Press any key to start
 $(document).keydown(function (e) {
@@ -13,6 +14,8 @@ $(document).keydown(function (e) {
     recordedSequence = [];
     level = 1;
     $("h1").text(`Level ${level}`);
+    $("h3").text("");
+    $("h2").text(`High Score: ${highScore}`);
     generateSeq();
   }
 });
@@ -57,7 +60,9 @@ function generateSeq() {
 function animate(button, audio) {
   if (button != null) {
     $(button).addClass("pressed");
-    audio.play();
+    if (audio) {
+      audio.play();
+    }
     setTimeout(() => {
       $(button).removeClass("pressed");
     }, 100);
@@ -73,7 +78,9 @@ function animate(button, audio) {
 //Record the seq
 $(".btn").click(function () {
   if (gameStart) {
-    recordedSequence.push("." + this.id);
+    let buttonClicked = "." + this.id;
+    recordedSequence.push(buttonClicked);
+    animate(buttonClicked, null);
     console.log("recordedSeq = " + recordedSequence);
 
     if (checkSeq(recordedSequence.length)) {
@@ -82,6 +89,10 @@ $(".btn").click(function () {
         setTimeout(() => {
           recordedSequence = [];
           level++;
+          if (level > highScore) {
+            highScore = level - 1;
+            $("h2").text(`High Score: ${highScore}`);
+          }
           $("h1").text(`Level ${level}`);
           generateSeq();
         }, 1000);
@@ -89,7 +100,8 @@ $(".btn").click(function () {
     } else {
       animate(null, new Audio("sounds/wrong.mp3"));
       gameStart = false;
-      $("h1").text("Game Over! Press any key to start Again");
+      $("h1").text("Game Over! Press any key to restart");
+      $("h3").text(`Score: ${level - 1}`);
     }
   }
 });

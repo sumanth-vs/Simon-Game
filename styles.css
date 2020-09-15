@@ -1,12 +1,27 @@
 body {
   text-align: center;
+  margin-top: 0px;
   background-color: #011f3f;
 }
 
 #level-title {
   font-family: "Press Start 2P", cursive;
   font-size: 3rem;
-  margin: 5%;
+  margin: 2%;
+  color: #fef2bf;
+}
+
+#show-score {
+  font-family: "Press Start 2P", cursive;
+  font-size: 1.5rem;
+  margin: 2%;
+  color: #fef2bf;
+}
+
+#high-score {
+  font-family: "Press Start 2P", cursive;
+  font-size: 1.5rem;
+  margin: 2%;
   color: #fef2bf;
 }
 
